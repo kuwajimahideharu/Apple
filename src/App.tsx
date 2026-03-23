@@ -25,9 +25,43 @@ const FeatureCard = ({ icon: Icon, title, description, delay = 0 }: { icon: any,
   );
 };
 
+const ProjectCard = ({ title, description, link, image, delay = 0 }: { title: string, description: string, link: string, image: string, delay?: number }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8, delay, ease: [0.21, 0.45, 0.32, 0.9] }}
+      className="group relative overflow-hidden rounded-[2.5rem] bg-zinc-900 border border-white/5"
+    >
+      <div className="aspect-[16/9] overflow-hidden">
+        <img 
+          src={image} 
+          alt={title} 
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          referrerPolicy="no-referrer"
+        />
+      </div>
+      <div className="p-8">
+        <h3 className="text-2xl font-bold mb-2">{title}</h3>
+        <p className="text-gray-400 mb-6">{description}</p>
+        <a 
+          href={link} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 text-white font-semibold hover:gap-3 transition-all"
+        >
+          View Project <ChevronRight className="w-4 h-4" />
+        </a>
+      </div>
+    </motion.div>
+  );
+};
+
 export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const heroRef = useRef(null);
+  const worksRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"]
@@ -35,6 +69,10 @@ export default function App() {
 
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
+
+  const scrollToWorks = () => {
+    worksRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-white/20">
@@ -44,14 +82,14 @@ export default function App() {
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-lg font-semibold tracking-tight"
+            className="text-lg font-semibold tracking-tight cursor-pointer"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           >
             Hideharu
           </motion.div>
           
           <div className="hidden md:flex items-center gap-8 text-xs font-medium text-gray-400">
-            <a href="#" className="hover:text-white transition-colors">Portfolio</a>
-            <a href="#" className="hover:text-white transition-colors">Projects</a>
+            <button onClick={scrollToWorks} className="hover:text-white transition-colors">Works</button>
             <a href="#" className="hover:text-white transition-colors">About</a>
             <a href="#" className="hover:text-white transition-colors">Contact</a>
           </div>
@@ -72,8 +110,7 @@ export default function App() {
           animate={{ opacity: 1, y: 0 }}
           className="fixed inset-0 z-40 bg-black pt-20 px-10 flex flex-col gap-6 text-2xl font-semibold"
         >
-          <a href="#" onClick={() => setIsMenuOpen(false)}>Portfolio</a>
-          <a href="#" onClick={() => setIsMenuOpen(false)}>Projects</a>
+          <button onClick={() => { setIsMenuOpen(false); scrollToWorks(); }}>Works</button>
           <a href="#" onClick={() => setIsMenuOpen(false)}>About</a>
           <a href="#" onClick={() => setIsMenuOpen(false)}>Contact</a>
         </motion.div>
@@ -128,7 +165,10 @@ export default function App() {
             transition={{ delay: 0.6, duration: 0.8 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
-            <button className="px-8 py-3 bg-white text-black rounded-full font-semibold hover:bg-gray-200 transition-colors flex items-center gap-2">
+            <button 
+              onClick={scrollToWorks}
+              className="px-8 py-3 bg-white text-black rounded-full font-semibold hover:bg-gray-200 transition-colors flex items-center gap-2"
+            >
               Explore Now <ChevronRight className="w-4 h-4" />
             </button>
             <button className="px-8 py-3 bg-transparent text-white border border-white/20 rounded-full font-semibold hover:bg-white/5 transition-colors">
@@ -141,8 +181,47 @@ export default function App() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-4xl max-h-[800px] bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none" />
       </section>
 
+      {/* Works Section */}
+      <section ref={worksRef} className="py-32 px-6 max-w-7xl mx-auto">
+        <div className="text-center mb-20">
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-4xl md:text-5xl font-bold mb-4"
+          >
+            Featured Projects.
+          </motion.h2>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-gray-400 text-lg max-w-xl mx-auto"
+          >
+            A selection of my recent work, built with passion and precision.
+          </motion.p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <ProjectCard 
+            title="Cafe Aroma"
+            description="A modern coffee shop landing page with a focus on elegant typography and smooth animations."
+            link="https://cafe-aroma.example.com"
+            image="https://picsum.photos/seed/cafe/1200/800"
+            delay={0.1}
+          />
+          <ProjectCard 
+            title="Tech Insight"
+            description="A clean, data-driven dashboard for monitoring real-time server performance and analytics."
+            link="https://tech-insight.example.com"
+            image="https://picsum.photos/seed/tech/1200/800"
+            delay={0.2}
+          />
+        </div>
+      </section>
+
       {/* Grid Section */}
-      <section className="py-32 px-6 max-w-7xl mx-auto">
+      <section className="py-32 px-6 max-w-7xl mx-auto border-t border-white/5">
         <div className="text-center mb-40">
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
